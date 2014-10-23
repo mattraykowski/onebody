@@ -5,6 +5,7 @@ ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip.sub(/ruby\-
 gem 'rails', '~> 4.1.4'
 gem 'rails_autolink'
 gem 'mysql2'
+gem 'pg'
 gem 'jquery-rails'
 gem 'will_paginate', '3.0.7'
 gem 'highline'
