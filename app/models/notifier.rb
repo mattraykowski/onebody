@@ -376,10 +376,10 @@ class Notifier < ActionMailer::Base
     end
 
     def get_from_person(email)
-      people = Person.where("lcase(email) = ?", email.from.first.downcase).to_a
+      people = Person.where("lower(email) = ?", email.from.first.downcase).to_a
       if people.length == 0
         # user is not found in the system, try alternate email
-        Person.where("lcase(alternate_email) = ?", email.from.first.downcase).first
+        Person.where("lower(alternate_email) = ?", email.from.first.downcase).first
       elsif people.length == 1
         people.first
       elsif people.length > 1

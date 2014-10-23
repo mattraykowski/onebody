@@ -41,13 +41,13 @@ class Person < ActiveRecord::Base
   scope :undeleted, -> { where(deleted: false) }
   scope :deleted, -> { where(deleted: true) }
   scope :adults, -> { where(child: false) }
-  scope :adults_or_have_consent, -> { where("child = 0 or coalesce(parental_consent, '') != ''") }
+  scope :adults_or_have_consent, -> { where("child = ? or coalesce(parental_consent, '') != ''", false) }
   scope :children, -> { where(child: true) }
   scope :can_sign_in, -> { undeleted.where(can_sign_in: true) }
   scope :administrators, -> { undeleted.where('admin_id is not null') }
   scope :email_changed, -> { undeleted.where(email_changed: true) }
   scope :minimal, -> { select('people.id, people.first_name, people.last_name, people.suffix, people.child, people.gender, people.birthday, people.gender, people.photo_file_name, people.photo_content_type, people.photo_fingerprint, people.photo_updated_at, people.deleted') }
-  scope :with_birthday_month, -> m { where('birthday is not null and month(birthday) = ?', m) }
+  scope :with_birthday_month, -> m { where('birthday is not null and extract(month from birthday) = ?', m) }
 
   has_attached_file :photo, PAPERCLIP_PHOTO_OPTIONS
 
@@ -125,7 +125,7 @@ class Person < ActiveRecord::Base
   end
 
   def inspect
-    "<#{name}>"
+    "<#{id}:#{name}>"
   end
 
   # FIXME deprecated
@@ -415,11 +415,11 @@ class Person < ActiveRecord::Base
     end
 
     def business_categories
-      connection.select("select distinct business_category as name from people where business_category is not null and business_category != '' and site_id = #{Site.current.id} order by business_category").map { |c| c['name'] }
+      connection.select_all("select distinct business_category as name from people where business_category is not null and business_category != '' and site_id = #{Site.current.id} order by business_category").map { |c| c['name'] }
     end
 
     def custom_types
-      connection.select("select distinct custom_type as name from people where custom_type is not null and custom_type != '' and site_id = #{Site.current.id} order by custom_type").map { |t| t['name'] }
+      connection.select_all("select distinct custom_type as name from people where custom_type is not null and custom_type != '' and site_id = #{Site.current.id} order by custom_type").map { |t| t['name'] }
     end
 
   end
